@@ -14,6 +14,7 @@ async def add_session(
     translator_id: int = None,
     season_id: int = None,
     episode_id: int = None,
+    user_id: int = None,
 ):
     async with async_session() as session:
         async with session.begin():
@@ -39,7 +40,13 @@ async def add_session(
                 }
             )
             await add_movie_to_history(
-                movie_id, translator_id, movie.action, season_id, episode_id, position
+                user_id,
+                movie_id,
+                translator_id,
+                movie.action,
+                season_id,
+                episode_id,
+                position,
             )
             await ws_manager.broadcast(live_session)
 

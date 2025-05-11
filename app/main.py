@@ -1,11 +1,13 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.api.v1.api import api_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.base import create_all_tables
 from app.api.v1.endpoints import ws_live_session
 from app.api.v1.endpoints import session
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -24,6 +26,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 @app.on_event("startup")
 async def on_startup():
@@ -34,7 +38,3 @@ async def on_startup():
 @app.get("/")
 async def root():
     return {"message": "Welcome to the API"}
-
-
-if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

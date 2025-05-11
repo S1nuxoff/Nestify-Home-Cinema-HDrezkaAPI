@@ -5,6 +5,7 @@ from app.models.base import Base
 from app.models.movies import Movie
 from app.models.watch_history import WatchHistory
 from app.models.now_playing import NowPlaying
+from app.models.users import User
 
 
 async def create_all_tables():

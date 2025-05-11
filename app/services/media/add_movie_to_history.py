@@ -6,12 +6,13 @@ from datetime import datetime
 
 
 async def add_movie_to_history(
-    movie_id,
-    translator_id,
-    action,
-    season,
-    episode,
-    position_seconds,
+    user_id: int,
+    movie_id: str,
+    translator_id: str | None,
+    action: str,
+    season: int | None,
+    episode: int | None,
+    position_seconds: int,
 ):
     async with async_session() as session:
         async with session.begin():
@@ -21,8 +22,12 @@ async def add_movie_to_history(
             if not movie:
                 return None
 
+            # ⬇️ тепер враховуємо user_id
             existing_movie = await session.execute(
-                select(WatchHistory).where(WatchHistory.movie_id == movie_id)
+                select(WatchHistory).where(
+                    WatchHistory.movie_id == movie_id,
+                    WatchHistory.user_id == user_id,
+                )
             )
             existing_movie = existing_movie.scalars().first()
             if existing_movie:
@@ -37,6 +42,7 @@ async def add_movie_to_history(
                 episode = None
 
             new_movie = WatchHistory(
+                user_id=user_id,
                 movie_id=movie_id,
                 translator_id=translator_id,
                 season=season,

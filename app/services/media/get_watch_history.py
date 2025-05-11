@@ -1,29 +1,26 @@
 from sqlalchemy import select
-from sqlalchemy.orm import aliased
 from app.models.watch_history import WatchHistory
 from app.models.movies import Movie
 from app.db.session import async_session
-from app.utils.utils import check_video_exists
-from app.services.media.updateTrailers import updateTrailers
 
 
-async def get_watch_history():
+async def get_watch_history(user_id: int):
     async with async_session() as session:
         async with session.begin():
-            # Сортировка по updated_at в порядке убывания
             result = await session.execute(
-                select(WatchHistory).order_by(
-                    WatchHistory.updated_at.desc()
-                )  # Сортировка по дате обновления
+                select(WatchHistory)
+                .where(WatchHistory.user_id == user_id)
+                .order_by(WatchHistory.updated_at.desc())
             )
             history = result.scalars().all()
             data = []
+
             for item in history:
                 movie_result = await session.execute(
                     select(Movie).where(Movie.id == item.movie_id)
                 )
                 movie = movie_result.scalars().first()
-                # trailer = check_video_exists(movie.trailer)
+
                 if movie:
                     data.append(
                         {
@@ -39,7 +36,6 @@ async def get_watch_history():
                             "genre": movie.genre,
                             "image": movie.image,
                             "country": movie.country,
-                            "release_date": movie.release_date,
                             "duration": movie.duration,
                             "position": item.position_seconds,
                             "episode": item.episode,

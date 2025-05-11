@@ -8,6 +8,9 @@ class WatchHistory(Base):
     __tablename__ = "watch_history"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), nullable=False, default=1
+    )
     movie_id: Mapped[str] = mapped_column(ForeignKey("movies.id"), nullable=False)
     translator_id: Mapped[str] = mapped_column(String, nullable=True)
     season: Mapped[int] = mapped_column(nullable=True)

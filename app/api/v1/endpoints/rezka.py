@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
-from typing import List, Any
+from typing import List
 import datetime
+
 from app.services.media.add_movie import add_movie
 from app.services.rezka import extract_id_from_url, get_search
 from app.services.media.get_movie import get_movie_db
@@ -23,9 +24,7 @@ from app.services.rezka import (
     get_categories,
 )
 from app.core.config import settings
-
-# Импортируем вашу функцию get_source, COOKIES, HEADERS
-from app.services.rezka import get_source, COOKIES, HEADERS
+from app.services.rezka import get_source
 
 router = APIRouter()
 
@@ -38,26 +37,31 @@ async def fetch_movie(link: str):
         movie = await get_movie(link)
         if not movie:
             raise HTTPException(status_code=404, detail="movie not found")
-        # await add_movie(movie)
+        await add_movie(movie)
         return movie
     else:
         return movie
 
 
-@router.get(
-    "/get_watch_history",
-)
-async def fetch_watch_history():
-    result = await get_watch_history()
-    return result
+@router.get("/get_watch_history")
+async def fetch_watch_history(user_id: int = Query(..., description="ID користувача")):
+    try:
+        result = await get_watch_history(user_id)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post(
     "/add_movie_to_history",
     summary="Add movie to watch history",
 )
-async def add_movie_to_history_ee(data: MovieHistoryCreate):
+async def add_movie_to_history_ee(
+    data: MovieHistoryCreate,
+    user_id: int = Query(..., description="ID користувача"),
+):
     result = await add_movie_to_history(
+        user_id=user_id,
         movie_id=data.movie_id,
         translator_id=data.translator_id,
         action=data.action,
