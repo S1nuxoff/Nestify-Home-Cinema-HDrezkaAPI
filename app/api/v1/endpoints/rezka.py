@@ -5,7 +5,7 @@ import datetime
 from app.services.media.add_movie import add_movie
 from app.services.rezka import extract_id_from_url, get_search
 from app.services.media.get_movie import get_movie_db
-from app.services.media.add_movie_to_history import add_movie_to_history
+
 from app.services.media.get_watch_history import get_watch_history
 
 from app.schemas.rezka import (
@@ -50,26 +50,6 @@ async def fetch_watch_history(user_id: int = Query(..., description="ID кори
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post(
-    "/add_movie_to_history",
-    summary="Add movie to watch history",
-)
-async def add_movie_to_history_ee(
-    data: MovieHistoryCreate,
-    user_id: int = Query(..., description="ID користувача"),
-):
-    result = await add_movie_to_history(
-        user_id=user_id,
-        movie_id=data.movie_id,
-        translator_id=data.translator_id,
-        action=data.action,
-        season=data.season,
-        episode=data.episode,
-        position_seconds=data.position_seconds,
-    )
-    return result
 
 
 @router.get("/search", response_model=List[FilmCard])

@@ -21,7 +21,9 @@ class User(Base):
 
     kodi_address: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
-    avatar_color: Mapped[str | None] = mapped_column(String(7), nullable=True)
+    # Замість кольору — посилання на аватар
+    avatar_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     last_login_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True

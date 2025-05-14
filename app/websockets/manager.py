@@ -11,11 +11,16 @@ class WebSocketManager:
         self.active_connections.append(websocket)
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
 
     async def broadcast(self, message: dict):
-        for connection in self.active_connections:
-            await connection.send_json(message)
+        for connection in list(self.active_connections):  # створюємо копію списку
+            try:
+                await connection.send_json(message)
+            except Exception as e:
+                print(f"[WS] Dead socket, removing: {e}")
+                self.active_connections.remove(connection)
 
 
 ws_manager = WebSocketManager()

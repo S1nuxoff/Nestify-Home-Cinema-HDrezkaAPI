@@ -13,6 +13,8 @@ async def get_watch_history(user_id: int):
                 .order_by(WatchHistory.updated_at.desc())
             )
             history = result.scalars().all()
+            if not history:
+                return None
             data = []
 
             for item in history:
